@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { FaUser } from 'react-icons/fa'
+import { useSelector, useDispatch } from 'react-redux'
+import { register } from '../features/auth/authSlice'
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -11,6 +13,12 @@ function Register() {
   })
 
   const { name, email, password, password2 } = formData
+
+  const dispatch = useDispatch()
+
+  const { user, isLoading, isSuccess, message } = useSelector(
+    (state) => state.auth
+  )
 
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -24,6 +32,14 @@ function Register() {
 
     if (password !== password2) {
       toast.error('Passwords do not match')
+    } else {
+      const userData = {
+        name,
+        email,
+        password,
+      }
+
+      dispatch(register(userData))
     }
   }
 
@@ -42,7 +58,7 @@ function Register() {
           <div className='form-group'>
             <input
               type='text'
-              classname='form-control'
+              className='form-control'
               id='name'
               name='name'
               value={name}
@@ -54,7 +70,7 @@ function Register() {
           <div className='form-group'>
             <input
               type='email'
-              classname='form-control'
+              className='form-control'
               id='email'
               name='email'
               value={email}
@@ -66,7 +82,7 @@ function Register() {
           <div className='form-group'>
             <input
               type='password'
-              classname='form-control'
+              className='form-control'
               id='password'
               name='password'
               value={password}
@@ -78,7 +94,7 @@ function Register() {
           <div className='form-group'>
             <input
               type='password'
-              classname='form-control'
+              className='form-control'
               id='password2'
               name='password2'
               value={password2}
