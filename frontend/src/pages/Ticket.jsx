@@ -129,7 +129,7 @@ function Ticket() {
           </div>
         </form>
       </Modal>
-
+       
       {notes ? (
         notes.map((note) => <NoteItem key={note._id} note={note} />)
       ) : (
