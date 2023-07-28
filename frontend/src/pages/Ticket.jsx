@@ -4,7 +4,7 @@ import Modal from 'react-modal'
 import { FaPlus } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
 import { getTicket, closeTicket } from '../features/tickets/ticketSlice'
-import { getNotes, reset as notesReset } from '../features/notes/noteSlice'
+import { getNotes, createNote } from '../features/notes/noteSlice'
 import { useParams, useNavigate } from 'react-router-dom'
 import BackButton from '../components/BackButton'
 import Spinner from '../components/Spinner'
@@ -28,58 +28,55 @@ Modal.setAppElement('#root')
 function Ticket() {
   const [modalIsOpen, setModalIsOpen] = useState(false)
   const [noteText, setNoteText] = useState('')
-  const { ticket, isLoading, isSuccess, isError, message } = useSelector(
-    (state) => state.tickets
-  )
+  const { ticket } = useSelector((state) => state.tickets)
 
-  const { notes, isLoading: notesIsLoading } = useSelector(
-    (state) => state.notes
-  )
+  const { notes } = useSelector((state) => state.notes)
 
-  const params = useParams()
+  // const params = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { ticketId } = useParams()
 
   useEffect(() => {
-    if (isError) {
-      toast.error(message)
-    }
-
-    dispatch(getTicket(ticketId))
-    dispatch(getNotes(ticketId))
-    // eslint-disable-next-line
-  }, [isError, message, ticketId])
+    dispatch(getTicket(ticketId)).unwrap().catch(toast.error)
+    dispatch(getNotes(ticketId)).unwrap().catch(toast.error)
+  }, [ticketId, dispatch])
 
   // Close ticket
   const onTicketClose = () => {
     dispatch(closeTicket(ticketId))
-    toast.success('Ticket closed')
-    navigate('/tickets')
+      .unwrap()
+      .then(() => {
+        toast.success('Ticket Closed')
+        navigate('/tickets')
+      })
+      .catch(toast.error)
   }
 
   // Create note submit
   const onNoteSubmit = (e) => {
     e.preventDefault()
-    closeModal()
+    dispatch(createNote({ noteText, ticketId }))
+      .unwrap()
+      .then(() => {
+        setNoteText('')
+        closeModal()
+      })
+      .catch(toast.error)
   }
 
   // Open/close modal
   const openModal = () => setModalIsOpen(true)
   const closeModal = () => setModalIsOpen(false)
 
-  if (isLoading || notesIsLoading) {
+  if (!ticket) {
     return <Spinner />
-  }
-
-  if (isError) {
-    return <h3>Something went wrong</h3>
   }
 
   return (
     <div className='ticket-page'>
       <header className='ticket-header'>
-        <BackButton url='/tickets' />
+        <BackButton />
         <h2>
           Ticket ID: {ticket._id}
           <span className={`status status-${ticket.status}`}>
@@ -120,7 +117,7 @@ function Ticket() {
               name='noteText'
               id='noteText'
               className='form-control'
-              placeholder='Note Text'
+              placeholder='Note text'
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
             ></textarea>
@@ -133,9 +130,11 @@ function Ticket() {
         </form>
       </Modal>
 
-      {notes.map((note) => (
-        <NoteItem key={note._id} note={note} />
-      ))}
+      {notes ? (
+        notes.map((note) => <NoteItem key={note._id} note={note} />)
+      ) : (
+        <Spinner />
+      )}
 
       {ticket.status !== 'closed' && (
         <button onClick={onTicketClose} className='btn btn-block btn-danger'>
