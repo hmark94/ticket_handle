@@ -4,19 +4,19 @@ const jwt = require('jsonwebtoken')
 
 const User = require('../models/userModel')
 
-// @desc Register a new user
-// @route /api/users
-// @access Public
+// @desc    Register a new user
+// @route   /api/users
+// @access  Public
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body
 
   // Validation
   if (!name || !email || !password) {
     res.status(400)
-    throw new Error('Please include all fields!')
+    throw new Error('Please include all fields')
   }
 
-  // Find if user already exist
+  // Find if user already exists
   const userExists = await User.findOne({ email })
 
   if (userExists) {
@@ -48,9 +48,9 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc Login a new user
-// @route /api/login
-// @access Public
+// @desc    Login a user
+// @route   /api/users/login
+// @access  Public
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body
 
@@ -70,9 +70,9 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc Get current user
-// @route /api/users/me
-// @access Private
+// @desc    Get current user
+// @route   /api/users/me
+// @access  Private
 const getMe = asyncHandler(async (req, res) => {
   const user = {
     id: req.user._id,
