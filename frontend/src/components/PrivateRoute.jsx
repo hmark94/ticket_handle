@@ -1,15 +1,13 @@
-import { Navigate, Outlet } from 'react-router-dom'
-import { useAuthStatus } from '../hooks/useAuthStatus'
-import Spinner from './Spinner'
+import { Navigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 
-const PrivateRoute = () => {
-  const { loggedIn, checkingStatus } = useAuthStatus()
 
-  if (checkingStatus) {
-    return <Spinner />
-  }
+const PrivateRoute = ({ children }) => {
+  const { user } = useSelector((state) => state.auth)
 
-  return loggedIn ? <Outlet /> : <Navigate to='/login' />
+  if (user) return children
+
+  return <Navigate to='/login' />
 }
 
 export default PrivateRoute

@@ -32,7 +32,7 @@ function Ticket() {
 
   const { notes } = useSelector((state) => state.notes)
 
-  // const params = useParams()
+
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { ticketId } = useParams()
@@ -129,7 +129,7 @@ function Ticket() {
           </div>
         </form>
       </Modal>
-       
+
       {notes ? (
         notes.map((note) => <NoteItem key={note._id} note={note} />)
       ) : (
